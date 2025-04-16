@@ -320,8 +320,9 @@
                     </form>
                 </td>
 
-                <td  class="actions">
-                    <form>
+                <td  class="actions"   >
+                    <form  action="DeleteServlet" method="POST" >
+                        <input type="hidden" name="smsId"   value=<%= sms.getSmsId() %>>
                         <button type="submit" class="delete">Delete</button>
                     </form>
                 </td>
