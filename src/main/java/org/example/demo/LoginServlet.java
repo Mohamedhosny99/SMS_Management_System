@@ -13,6 +13,11 @@ import javax.servlet.http.HttpSession;
 import DBConnection.DBconnection.*;
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
+
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String path1 = "/login.jsp";
+        response.sendRedirect(path1);
+    }
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -30,16 +35,29 @@ public class LoginServlet extends HttpServlet {
             if (rs.next()) {
                 int userId = rs.getInt("user_id");
                 String type = rs.getString("type");
-
+                System.err.println(userId);
                 HttpSession session = request.getSession();
                 session.setAttribute("userId", userId);
                 session.setAttribute("username", username);
+              
                 session.setAttribute("type", type);
 
                 if ("admin".equals(type)) {
                     response.sendRedirect("adminDashboard.jsp");
                 } else {
-                    response.sendRedirect("customer.jsp");
+
+                    String sql2 = "SELECT phone_number FROM customer  WHERE  user_id = ? ";
+                    PreparedStatement stmt2 = conn.prepareStatement(sql2);
+                    stmt2.setInt(1, userId);
+                     ResultSet rs2 = stmt2.executeQuery();
+                     if (rs2.next()){
+                       String  phone = rs2.getString(1) ;
+                       session.setAttribute("phone", phone);
+
+                     }
+
+                    session.setAttribute("phone", rs2.getString("phone_number"));
+                    response.sendRedirect("home.jsp");
                 }
             } else {
                 response.sendRedirect("login.jsp?error=Invalid credentials");
@@ -48,5 +66,7 @@ public class LoginServlet extends HttpServlet {
             e.printStackTrace();
             response.sendRedirect("login.jsp?error=Database error");
         }
+
+
     }
 }

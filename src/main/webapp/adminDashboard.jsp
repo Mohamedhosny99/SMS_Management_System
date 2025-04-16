@@ -1,92 +1,189 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.sql.*" %>
-<%@ page import="DBConnection.DBconnection" %>
-<%--<%--%>
-<%--  HttpSession sessionObj = request.getSession(false);--%>
-<%--  if (sessionObj == null || sessionObj.getAttribute("userId") == null) {--%>
-<%--    response.sendRedirect("login.jsp?error=Please login first");--%>
-<%--    return;--%>
-<%--  }--%>
-<%--%>--%>
-
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+  String type = (String) session.getAttribute("type");
+  if (type == null || !"admin".equals(type)) {
+    response.sendRedirect("login.jsp?error=Unauthorized access");
+    return;
+  }
+%>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; }
-    table { width: 80%; margin: auto; border-collapse: collapse; }
-    th, td { border: 1px solid black; padding: 8px; }
-    input { padding: 5px; width: 200px; }
-    button { padding: 5px 10px; background-color: blue; color: white; }
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(rgba(106, 17, 203, 0.8), rgba(37, 117, 252, 0.8)); /* Gradient overlay on background image */
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* Header Styles */
+    header {
+      background-color: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    header nav {
+      display: flex;
+      gap: 20px;
+    }
+
+    header nav a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    header nav a:hover {
+      color: #6a11cb;
+    }
+
+    /* Main Content Styles */
+    .container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: fadeIn 1s ease-in-out;
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #6a11cb;
+      font-size: 36px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    p {
+      color: #555;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    /* Footer Styles */
+    footer {
+      width: 100%;
+      padding: 15px 0;
+      background-color: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      text-align: center;
+      font-size: 14px;
+      color: #fff;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    footer a {
+      color: #fff;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    footer a:hover {
+      color: #6a11cb;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      header nav {
+        gap: 10px;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 28px;
+      }
+
+      p {
+        font-size: 16px;
+      }
+    }
   </style>
 </head>
 <body>
+<!-- Header -->
+<header>
+  <h1>Admin Dashboard</h1>
+  <nav>
+<%--    <a href="#">Home</a>--%>
+    <a href="ListUserServlet">List Users</a>
+    <a href="login.jsp">Logout</a>
+  </nav>
+</header>
 
-<h2>Admin Dashboard - All Customers</h2>
+<!-- Main Content -->
+<div class="container">
+  <div class="card">
+    <h2>Welcome to Admin Dashboard</h2>
+    <p>
+      You are now in the admin dashboard. From here, you can manage users and perform administrative tasks.
+    </p>
+  </div>
+</div>
 
-<!-- 🔍 Search Form -->
-<form method="get" action="adminDashboard.jsp">
-  <input type="text" name="search" placeholder="Search customers..." value="<%= request.getParameter("search") != null ? request.getParameter("search") : "" %>">
-  <button type="submit">Search</button>
-</form>
-<br>
-<br>
-<table>
-  <tr>
-    <th>User ID</th>
-    <th>Name</th>
-    <th>Phone</th>
-    <th>Twilio SID</th>
-    <th>Twilio Token</th>
-  </tr>
-
-  <%
-    String searchQuery = request.getParameter("search");
-    String sql = "SELECT * FROM customers";
-
-    if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-      sql += " WHERE CAST(user_id AS TEXT) LIKE ? OR name LIKE ? OR phone LIKE ? OR twilio_sid LIKE ? OR twilio_token LIKE ?";
-    }
-
-    try (Connection conn = DBConnection.DBconnection.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-      if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-        String wildcardSearch = "%" + searchQuery + "%";
-        stmt.setString(1, wildcardSearch);
-        stmt.setString(2, wildcardSearch);
-        stmt.setString(3, wildcardSearch);
-        stmt.setString(4, wildcardSearch);
-        stmt.setString(5, wildcardSearch);
-      }
-
-      ResultSet rs = stmt.executeQuery();
-      while (rs.next()) {
-  %>
-  <tr>
-    <td><%= rs.getInt("user_id") %></td>
-    <td><%= rs.getString("name") %></td>
-    <td><%= rs.getString("phone") %></td>
-    <td><%= rs.getString("twilio_sid") %></td>
-    <td><%= rs.getString("twilio_token") %></td>
-  </tr>
-  <%
-      }
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-  %>
-</table>
-<br>
-<br>
-<!-- Logout Button -->
-<form action="LogoutServlet" method="get" style="text-align: right; margin: 10px;">
-  <button type="submit" style="background-color: red; color: white; padding: 10px; border: none; cursor: pointer;">
-    Logout
-  </button>
-</form>
-
+<!-- Footer -->
+<footer>
+  <p>&copy; 2025 Twilio sms Client. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+</footer>
 </body>
 </html>

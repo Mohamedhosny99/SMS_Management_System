@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Date;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,16 +17,26 @@ public class RegisterCustomerServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String username = request.getParameter("username");
+        String username = request.getParameter("name");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String phone = request.getParameter("phone");
-        String job = request.getParameter("job");
-        String birthday = request.getParameter("birthday");
+        String job = request.getParameter("role");
+        String birthdayStr = request.getParameter("birthday"); // Get birthday as String
         String address = request.getParameter("address");
         String twilioSID = request.getParameter("twilioSID");
         String twilioToken = request.getParameter("twilioToken");
         String senderID = request.getParameter("senderID");
+
+        // Validate and convert birthday String to java.sql.Date
+        Date birthday;
+        try {
+            birthday = Date.valueOf(birthdayStr); // Convert to java.sql.Date
+        } catch (IllegalArgumentException e) {
+            // Handle invalid date format
+            response.sendRedirect("customer_register.jsp?error=Invalid date format. Use yyyy-MM-dd.");
+            return;
+        }
 
         System.out.println("Received values:");
         System.out.println("Full Name: " + username);
@@ -39,21 +51,19 @@ public class RegisterCustomerServlet extends HttpServlet {
         System.out.println("Sender ID: " + senderID);
 
         try (Connection conn = DBConnection.DBconnection.getConnection()) {
-            String sql = "INSERT INTO customer(username, email, password, phone_number, job, address, birthday, twilio_account_sid, twilio_sender_id,twilio_auth_token) VALUES (?,?,?,?,?,?,?,?,?,?)";
+            String sql = "INSERT INTO customer(email, phone_number, username, address, job, birthday, password, " +
+                    "twilio_account_sid, twilio_sender_id, twilio_auth_token) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, username);
-            stmt.setString(2, email);
-            stmt.setString(3, password);  // Hash passwords in real applications!
-            stmt.setString(4, phone);
+            stmt.setString(1, email);
+            stmt.setString(2, phone);
+            stmt.setString(3, username);
+            stmt.setString(4, address);
             stmt.setString(5, job);
-            stmt.setString(6, address);
-            stmt.setDate(7, java.sql.Date.valueOf(birthday));
+            stmt.setDate(6, birthday); // Use setDate for the birthday field
+            stmt.setString(7, password);
             stmt.setString(8, twilioSID);
             stmt.setString(9, senderID);
             stmt.setString(10, twilioToken);
-
-
-
 
             int rowsInserted = stmt.executeUpdate();
             if (rowsInserted > 0) {
@@ -63,7 +73,7 @@ public class RegisterCustomerServlet extends HttpServlet {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            response.sendRedirect("customer_register.jsp?error=Database error");
+            response.sendRedirect("customer_register.jsp?error=Database error: " + e.getMessage());
         }
     }
 }
