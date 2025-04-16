@@ -256,7 +256,7 @@
             <input type="hidden" name="action" value="verifyCode"> <!-- Hidden input for action -->
             <div class="buttons">
                 <button type="submit" class="verify">Verify</button>
-                <button type="button" class="resend" onclick="resendCode()">Resend Code</button>
+<%--                <button type="button" class="resend" onclick="resendCode()">Resend Code</button>--%>
             </div>
         </form>
     </div>
