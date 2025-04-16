@@ -1,3 +1,11 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+  String type = (String) session.getAttribute("type");
+  if (type == null || !"admin".equals(type)) {
+    response.sendRedirect("login.jsp?error=Unauthorized access");
+    return;
+  }
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>

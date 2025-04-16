@@ -19,19 +19,22 @@ import model.SmsRecord;
 
 @WebServlet("/UserSmsServlet")
 public class UserSmsServlet extends HttpServlet {
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        String userId = null;
-        if ( request.getParameter("user_id") != null)
-        {
-            userId= request.getParameter("user_id");
-        }else {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        String type = (session != null) ? (String) session.getAttribute("type") : null;
 
-            userId = session.getAttribute("userId").toString();
+        if (type == null || !"admin".equals(type)) {
+            response.sendRedirect("login.jsp?error=Unauthorized access");
+            return;
         }
 
-        List<SmsRecord> smsList = new ArrayList<>(); // Use List instead of HashMap
+        String userId = request.getParameter("user_id");
+        if (userId == null && session != null) {
+            Object idObj = session.getAttribute("userId");
+            if (idObj != null) userId = idObj.toString();
+        }
+
+        List<SmsRecord> smsList = new ArrayList<>();
 
         if (userId != null && !userId.isEmpty()) {
             try (Connection conn = DBconnection.getConnection()) {
@@ -50,26 +53,14 @@ public class UserSmsServlet extends HttpServlet {
                     sms.setDate(rs.getDate("sent_date").toString());
                     sms.setInbound(rs.getBoolean("inbound"));
                     sms.setStatus(rs.getString("status") != null ? rs.getString("status") : "N/A");
-
-                    System.out.println("Fetched SMS - To: " + sms.getTo() + ", From: " + sms.getFrom());
-                    System.out.println("Body: \n"+ rs.getString("body"));
-                    System.out.println("Date:\n"+rs.getString("sent_date").toString());
-
-                    // Add each record to the list
                     smsList.add(sms);
                 }
-
-                System.out.println("Received user_id: " + userId);
-                System.out.println("Total SMS Records: " + smsList.size());
-
-                rs.close();
-                stmt.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        request.setAttribute("smsList", smsList); // Use List instead of Map
+        request.setAttribute("smsList", smsList);
         request.setAttribute("userId", userId);
         request.getRequestDispatcher("list-user-sms.jsp").forward(request, response);
     }
