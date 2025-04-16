@@ -287,7 +287,7 @@
       <input type="text" name="username" placeholder="Search by Name...">
       <input type="text" name="userID" placeholder="Search by ID...">
       <button type="submit">Search</button>
-      <button type="button" onclick="resetForm()">Back</button>
+      <button type="button" onclick="resetForm()">Reset</button>
     </form>
 
 
@@ -336,6 +336,11 @@
 <footer>
   <p>&copy; 2025 Twilio SMS Client. All rights reserved.</p>
 </footer>
+<script>
+  function resetForm() {
+    window.location.href = "ListUserServlet";
+  }
+</script>
 
 </body>
 </html>

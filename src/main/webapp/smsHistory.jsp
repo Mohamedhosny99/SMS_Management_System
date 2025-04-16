@@ -77,7 +77,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             animation: fadeIn 1s ease-in-out;
             width: 100%;
-            max-width: 1200px;
+            max-width: 1480px;
         }
 
         @keyframes fadeIn {
@@ -224,7 +224,7 @@
 
             .search-bar input,
             .search-bar input[type="date"] {
-                width: 100%;
+                width: 90%;
             }
 
             .search-bar button {
@@ -262,7 +262,7 @@
             <input type="date" name="endDate" placeholder="End Date">
             <input type="text" name="body" placeholder="Search by Body...">
             <button type="submit">Search</button>
-            <button type="button" onclick=resetForm()>Back</button>
+            <button type="button" onclick=resetForm()>Reset</button>
         </form>
 
 
