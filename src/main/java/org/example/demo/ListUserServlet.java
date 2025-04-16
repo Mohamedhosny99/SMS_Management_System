@@ -24,66 +24,63 @@ public class ListUserServlet extends HttpServlet {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         List<User> userList = new ArrayList<>();
-        String username = null ;
+        String username = null;
         String userID = null;
         HttpSession session = request.getSession();
-
+        String userSQL = "SELECT user_id, username FROM customer WHERE 1=1";
+        
         try {
             conn = DBconnection.getConnection();
-          
-            if  (request.getParameter("username") != null &&  request.getParameter("userID")!=null  )
-            {
-                username = request.getParameter("username");
-                 userID = request.getParameter("userID");
-                 System.out.println(username+"  " + userID+"Paramters");
 
-
-            }else {
-                // Convert Integer to String using toString() method
-                 userID = session.getAttribute("userId").toString();
-                  username  = (String) session.getAttribute("username");
-                  System.out.println(username+"  " + userID+"  Sessions");
+            // Check for username parameter
+            username = request.getParameter("username");
+            if (username != null && !username.trim().isEmpty()) {
+                userSQL += " AND username LIKE ?";
+                System.out.println("Username parameter: " + username);
+            } else {
+                username = null; // Ensure it's null if empty or not present
             }
-         
-                 
-            // Base Query
-            String userSQL = "SELECT user_id, username FROM customer";
 
-            // Applying Filters Dynamically
-//            List<String> filters = new ArrayList<>();
-//            if (username != null && !username.isEmpty()) {
-//                filters.add("username ILIKE ?");
-//            }
-//            if (userID != null && !userID.isEmpty()) {
-//                filters.add("CAST(user_id AS TEXT) ILIKE ?");
-//            }
-//
-//            if (!filters.isEmpty()) {
-//                userSQL += " WHERE " + String.join(" AND ", filters);
-//            }
-//
-           pstmt = conn.prepareStatement(userSQL);
-//
-//            int index = 1;
-//            if (username != null && !username.isEmpty()) {
-//                pstmt.setString(index++, "%" + username + "%");
-//            }
-//            if (userID != null && !userID.isEmpty()) {
-//                pstmt.setString(index++, "%" + userID + "%");
-//            }
+            // Check for userID parameter
+            userID = request.getParameter("userID");
+            if (userID != null && !userID.trim().isEmpty()) {
+                userSQL += " AND user_id = ?";
+                System.out.println("UserID parameter: " + userID);
+            } else {
+                userID = null; // Ensure it's null if empty or not present
+            }
+
+            System.out.println("Final SQL: " + userSQL);
+            pstmt = conn.prepareStatement(userSQL);
+
+            int paramIndex = 1;
+            
+            // Set username parameter
+            if (username != null) {
+                pstmt.setString(paramIndex++, "%" + username + "%");
+                System.out.println("Set username parameter at position " + (paramIndex-1));
+            }
+            
+            // Set userID parameter
+            if (userID != null) {
+                pstmt.setInt(paramIndex++, Integer.parseInt(userID));
+                System.out.println("Set userID parameter at position " + (paramIndex-1));
+            }
 
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
                 userList.add(new User(rs.getInt("user_id"), rs.getString("username")));
-                System.out.println("Listadd");
+                System.out.println("Added user to list");
             }
-            System.out.println(userList.size());
+            
+            System.out.println("Total users found: " + userList.size());
             request.setAttribute("userList", userList);
             request.getRequestDispatcher("list-user.jsp").forward(request, response);
 
         } catch (Exception e) {
             e.printStackTrace();
+            response.getWriter().println("Error: " + e.getMessage());
         } finally {
             try {
                 if (rs != null) rs.close();
