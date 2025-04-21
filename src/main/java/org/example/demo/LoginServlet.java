@@ -1,9 +1,11 @@
 package org.example.demo;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import DBConnection.DBconnection.*;
+
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
 
@@ -18,6 +21,7 @@ public class LoginServlet extends HttpServlet {
         String path1 = "/login.jsp";
         response.sendRedirect(path1);
     }
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -39,23 +43,19 @@ public class LoginServlet extends HttpServlet {
                 HttpSession session = request.getSession();
                 session.setAttribute("userId", userId);
                 session.setAttribute("username", username);
-              
                 session.setAttribute("type", type);
 
                 if ("admin".equals(type)) {
                     response.sendRedirect("adminDashboard.jsp");
                 } else {
-
-                    String sql2 = "SELECT phone_number FROM customer  WHERE  user_id = ? ";
+                    String sql2 = "SELECT phone_number FROM customer WHERE user_id = ?";
                     PreparedStatement stmt2 = conn.prepareStatement(sql2);
                     stmt2.setInt(1, userId);
-                     ResultSet rs2 = stmt2.executeQuery();
-                     if (rs2.next()){
-                       String  phone = rs2.getString(1) ;
-                       session.setAttribute("phone", phone);
-
-                     }
-
+                    ResultSet rs2 = stmt2.executeQuery();
+                    if (rs2.next()) {
+                        String phone = rs2.getString(1);
+                        session.setAttribute("phone", phone);
+                    }
                     session.setAttribute("phone", rs2.getString("phone_number"));
                     response.sendRedirect("home.jsp");
                 }
@@ -64,9 +64,16 @@ public class LoginServlet extends HttpServlet {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            response.sendRedirect("login.jsp?error=Database error");
+
+            // Get the detailed error message
+            String errorMessage = e.getMessage();
+
+            // Set the error message as a request attribute
+            request.setAttribute("errorMessage", errorMessage);
+
+            // Forward the request to the login.jsp page
+            RequestDispatcher dispatcher = request.getRequestDispatcher("login.jsp");
+            dispatcher.forward(request, response);
         }
-
-
     }
 }
