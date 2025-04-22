@@ -27,7 +27,7 @@ docker push your-dockerhub-username/sms_web_app
 
 6. Access the App
 
-http://<public-ip-or-load-balancer>:8080
+  http://public-ip-or-load-balancer:8080
 
 
 
