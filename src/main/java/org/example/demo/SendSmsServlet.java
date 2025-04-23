@@ -68,7 +68,7 @@ public class SendSmsServlet extends HttpServlet {
             }
 
             // Send SMS via Twilio
-           TwilioVerificationServlet.sendTwilioMessage(toNumber, messageBody, authToken, accountSid, senderId);
+            TwilioVerificationServlet.sendTwilioMessage(toNumber, messageBody, authToken, accountSid, senderId);
 
             // Update the SMS status to "success"
             updateSmsStatus(conn, smsId, "success", messageBody);
@@ -79,9 +79,10 @@ public class SendSmsServlet extends HttpServlet {
         } catch (AuthenticationException e) {
             System.err.println("Twilio Authentication Error: " + e.getMessage());
 
+            String errorfile="error.jsp";
             // **NO database update happens here anymore**
-            response.sendRedirect("smsSend.jsp?error=Failed to send SMS: Authentication error");
-
+//            response.sendRedirect("smsSend.jsp?error=Failed to send SMS: Authentication error");
+            response.sendRedirect(errorfile);
         } catch (SQLException e) {
             System.err.println("Database error: " + e.getMessage());
 

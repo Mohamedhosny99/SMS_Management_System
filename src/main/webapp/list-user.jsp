@@ -290,14 +290,12 @@
       <button type="button" onclick="resetForm()">Reset</button>
     </form>
 
-
     <table>
       <thead>
       <tr>
         <th>User ID</th>
         <th>Name</th>
-       <th>Action</th>
-
+        <th>Action</th>
       </tr>
       </thead>
       <tbody>
@@ -311,14 +309,19 @@
         <td><%= user.getUsername() %></td>
 
         <td class="actions">
+          <!-- View SMS History -->
           <form action="UserSmsServlet" method="GET">
             <input type="hidden" name="user_id" value="<%= user.getUserId() %>">
             <button type="submit">View SMS History</button>
           </form>
+
+          <!-- Delete User -->
+          <form action="DeleteUserServlet" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
+            <input type="hidden" name="user_id" value="<%= user.getUserId() %>">
+            <br>
+            <button type="submit" class="delete">Delete User</button>
+          </form>
         </td>
-
-
-
       </tr>
       <%
         }
@@ -336,6 +339,7 @@
 <footer>
   <p>&copy; 2025 Twilio SMS Client. All rights reserved.</p>
 </footer>
+
 <script>
   function resetForm() {
     window.location.href = "ListUserServlet";

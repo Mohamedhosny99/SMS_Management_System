@@ -92,6 +92,12 @@
             font-size: 12px;
             color: #666;
         }
+        .error-message {
+            color: #ff0000;
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -104,6 +110,18 @@
     </form>
     <br>
     <a href="customer_register.jsp">Create an Account</a>
+
+    <!-- Display error message if it exists -->
+    <%
+        String errorMessage = (String) request.getAttribute("errorMessage");
+        if (errorMessage != null) {
+    %>
+    <div class="error-message">
+        <p><%= errorMessage %></p>
+    </div>
+    <%
+        }
+    %>
 
     <div class="footer">&copy; 2025 Twilio SMS Client</div>
 </div>
