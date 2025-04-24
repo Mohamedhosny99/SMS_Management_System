@@ -1,0 +1,58 @@
+1 aws configure
+2 aws ecs create-cluster --cluster-name sms-cluster
+3 aws iam create-role --role-name ecsTaskExecutionRole --assume-role-policy-document fi...
+4 aws iam attach-role-policy --role-name ecsTaskExecutionRole --policy-arn arn:aws:iam:...
+5 aws ecs register-task-definition --cli-input-json file://task-definition.json
+6 PS D:\SMS_Management_System> aws ec2 describe-subnets --query "Subnets[*].SubnetId"
+  [
+      "subnet-0a38ba20622aea16a",
+      "subnet-0eb7dc1c7876b1a76",
+      "subnet-040b18c5588b05eaf",
+      "subnet-07588b92c9d5acc4c",
+      "subnet-002508280c4c9146f",
+      "subnet-024e130179ef0cbcd"
+  ]
+7 PS D:\SMS_Management_System> aws ec2 describe-security-groups --query "SecurityGroups[*].[GroupName,GroupId]" --output text
+ default sg-076c57e37f5b8d852
+8 aws ecs run-task --cluster sms-cluster --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[subnet-0a38ba20622aea16a,subnet-0eb7dc1c7876b1a76],securityGroups=[sg-076c57e37f5b8d852],assignPublicIp=ENABLED}" --task-definition sms-task
+9 check if the service is running:
+        PS D:\SMS_Management_System> aws ecs list-tasks --cluster sms-cluster
+        {
+            "taskArns": [
+                "arn:aws:ecs:us-east-1:692859933235:task/sms-cluster/a22d4d77220d4ee6b6132d7667c21630"
+            ]
+        }
+aws ecs describe-tasks --cluster sms-cluster --tasksarn:aws:ecs:us-east-1:692859933235:task/sms-cluster/a22d4d77220d4ee6b6132d7667c21630
+  "tasks": [
+        {
+            "attachments": [
+                {
+                    "id": "a2fd94ba-49c0-4262-838c-2e246b1abaf3",
+                    "type": "ElasticNetworkInterface",
+                    "status": "ATTACHED",
+                    "details": [
+                        {
+                            "name": "subnetId",
+                            "value": "subnet-0a38ba20622aea16a"
+                        },
+                        {
+                            "name": "networkInterfaceId",
+                            "value": "eni-0f110e713a0b6636b"
+                        },
+                        {
+                            "name": "macAddress",
+                            "value": "02:ca:96:03:11:09"
+                        },
+                        {
+                            "name": "privateDnsName",
+                            "value": "ip-172-31-14-33.ec2.internal"
+                        },
+                        {
+                            "name": "privateIPv4Address",
+                            "value": "172.31.14.33"
+                        }
+                    ]
+                }
+aws ec2 describe-network-interfaces --network-interface-ids eni-0f110e713a0b6636b
+ "PublicIp": "54.147.83.173"
+http://54.147.83.173
